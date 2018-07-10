@@ -2,23 +2,29 @@ FROM openjdk:8-jdk
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update -y && apt-get -y install nodejs yarn ruby2.3 ruby2.3-dev build-essential
+RUN dpkg --add-architecture i386 && \
+    apt-get update -y && \
+    apt-get install -y nodejs yarn ruby2.3 ruby2.3-dev build-essential && \
+    apt-get install -y --no-install-recommends libstdc++6:i386 libc6:i386 libncurses5:i386 zlib1g:i386
 RUN gem install bundler
 
-# Android
-ENV SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip" \
-    ANDROID_HOME="/opt/android-sdk" \
-    ANDROID_VERSION=23 \
-    ANDROID_BUILD_TOOLS_VERSION=23.0.1
-RUN mkdir "$ANDROID_HOME" ~/.android \
-    && cd "$ANDROID_HOME" \
-    && curl -o sdk.zip $SDK_URL \
-    && unzip sdk.zip \
-    && rm sdk.zip \
-    && yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+# Download and install Android
+ARG ANDROID_TOOLS_URL=https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
+ENV ANDROID_HOME=/opt/android
+RUN mkdir $ANDROID_HOME
+WORKDIR $ANDROID_HOME
+RUN curl --silent $ANDROID_TOOLS_URL > android.zip
+RUN unzip android.zip
+RUN rm android.zip
 RUN $ANDROID_HOME/tools/bin/sdkmanager --update
 RUN $ANDROID_HOME/tools/bin/sdkmanager \
-    "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
-    "platforms;android-${ANDROID_VERSION}" \
+    "build-tools;26.0.1" \
+    "build-tools;23.0.1" \
+    "platforms;android-23" \
+    "platforms;android-26" \
     "platform-tools"
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+
+# Link adb executable
+RUN ln -s /opt/android/platform-tools/adb /usr/bin/adb
 
