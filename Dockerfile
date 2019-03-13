@@ -18,8 +18,8 @@ RUN unzip android.zip
 RUN rm android.zip
 RUN $ANDROID_HOME/tools/bin/sdkmanager --update
 RUN $ANDROID_HOME/tools/bin/sdkmanager \
-    "build-tools;26.0.1" \
-    "build-tools;23.0.1" \
+    "build-tools;26.0.3" \
+    "build-tools;23.0.3" \
     "platforms;android-23" \
     "platforms;android-26" \
     "platform-tools"
