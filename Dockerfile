@@ -1,21 +1,15 @@
 FROM openjdk:8-jdk
 
-# Set the locale
-RUN locale-gen en_US.UTF-8  
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8  
-
-# Watchers
-RUN echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf
-
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN dpkg --add-architecture i386 && \
     apt-get update -y && \
-    apt-get install -y nodejs yarn ruby2.3 ruby2.3-dev build-essential && \
+    apt-get install -y nodejs yarn ruby2.3 ruby2.3-dev build-essential locales locales-all && \
     apt-get install -y --no-install-recommends libstdc++6:i386 libc6:i386 libncurses5:i386 zlib1g:i386
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 RUN gem install bundler
 
 # Download and install Android
